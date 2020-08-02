@@ -34,7 +34,6 @@ class CH(object):
         return self.__trapdoor
 
 
-
 class ChameleonHash(object):
     def __init__(self):
         self.__P = ECC._curves['P-256'].G  # 这个是base point
@@ -43,7 +42,6 @@ class ChameleonHash(object):
         # self.__order = order  # P点的阶数 注意是int类型的
         self.__curve = ECC.generate(curve='P-256')  # 指定并生成椭圆曲线 P-256 = secp256r1
         # self.__curve = curve  # 指定并生成椭圆曲线 P-256 = secp256r1
-
 
     def Compute_CH(self, m, r):  # 给定一个初始输入x,y 计算一个变色龙哈希函数值
         self.__Y = self.__curve.public_key()  # ECC公钥
