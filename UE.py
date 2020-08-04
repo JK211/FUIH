@@ -16,11 +16,8 @@ import time
 from Cyptology import ChameleonHash_ECC,key_type_transform
 from sslcrypto.fallback._util import  bytes_to_int, int_to_bytes
 from Cryptodome.PublicKey import ECC
-import settings
-# from results_record.global_dict import gol
-# gol = gol()
 
-def UE_func():
+def UE_func(m_dict):
     print('-----------------------------------------切片服务注册过程-----------------------------------------------')
     start_reg = time.time()
     #  ***************************开始计算变色龙哈希值*******************************
@@ -57,12 +54,12 @@ def UE_func():
     signature = curve.sign(b_cipher_h, sk)
     m_UE_AMF = {'ciphertext': ciphertext, 'signature': signature}   # 这是UE需要发送的消息密文和签名
     print('服务注册阶段消息<UText, E1, σ>字节数为：', len(ciphertext)+len(signature))
+    m_dict['1'] = len(ciphertext)+len(signature)
     b_m_UE_AMF = pickle.dumps(m_UE_AMF)    # 消息序列化为字节串
     # print('序列化后的消息<UText, E1, σ>字节数为：', len(b_m_UE_AMF))
     end_reg = time.time()
     print('UE端服务注册阶段计算开销：', (end_reg-start_reg)*1000, 'ms')
-    settings.result_dict['UE_Reg'] = (end_reg-start_reg)*1000
-    print('///////////////', settings.result_dict)
+    m_dict['UE_Reg'] = (end_reg-start_reg)*1000
     # print(m_UE_AMF)
     # print(b_m_UE_AMF)
     # **********************UDP客户端编程【发送给AMF消息进行注册】***************************************
@@ -124,6 +121,7 @@ def UE_func():
     m1 = (k - r1*x + order) % order
     end_auth = time.time()
     print('UE端在服务认证阶段的计算开销为：', (end_auth-start_auth) * 1000, 'ms')
+    m_dict['UE_Auth'] = (end_auth-start_auth) * 1000
     # # TXID_ST = b'8b60004928090023bef4292ed4e0e414a9f1eaa2d734d4b34beb5c6b2f33bb59'
     #
     # data_A3VI_UE, addr = v.recvfrom(4096)  # 接收A3VI返回的注册后的确认消息<TXID_UE, T_Exp>
@@ -145,6 +143,7 @@ def UE_func():
     print('服务认证阶段消息<Hidden_Allowed_S_NSSAI, PID_UE, A_UE, B_UE, m_UE, T_Curr, TXID_ST>字节数：',
           len(Hidden_Allowed_S_NSSAI) +
           len(PID_UE) + 64 + 64 + m1.bit_length()/8 + T_Curr.__int__().bit_length()/8 + len(TXID_ST))
+    m_dict['4'] = len(Hidden_Allowed_S_NSSAI) + len(PID_UE) + 64 + 64 + m1.bit_length()/8 + T_Curr.__int__().bit_length()/8 + len(TXID_ST)
     if data == b'start':
         l = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         l.sendto(b_m_UE_EC, ('127.0.0.1', 12346))
@@ -186,6 +185,7 @@ def UE_func():
     SK_A3VI = hash(b_hash_m)
     end_agree = time.time()
     print('UE端密钥协商阶段计算开销为：', (end_agree-start_agree)*1000, 'ms')
+    m_dict['UE_KA'] =  (end_agree-start_agree)*1000
     # SK = hash(b_hash_m)
     print('***UE***计算出的会话密钥[Int类型]为：', SK_A3VI)
     # print(SK)
@@ -199,4 +199,5 @@ def UE_func():
     print('+++4+++ UE >>>> A3VI 发送消息ACK')
     # print(type(ACK))
     print('密钥协商阶段消息<ACK>字节数为：', ACK.bit_length()/8)
+    m_dict['7'] = ACK.bit_length()/8
     print('++++++++++++++++++++UE端密钥协商完成！！！++++++++++++++++++++++++')

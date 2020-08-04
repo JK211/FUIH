@@ -14,9 +14,8 @@ import hashlib
 import time
 from Cyptology import ChameleonHash_ECC,key_type_transform
 from sslcrypto.fallback._util import int_to_bytes, bytes_to_int
-import settings
 
-def EC_func():
+def EC_func(m_dict):
     ChameleonHash = ChameleonHash_ECC.ChameleonHash()   # 实例化对象，这一步注意不可少！！！
     KeyTrans = key_type_transform.KeyTrans()
     order = ChameleonHash.order()
@@ -71,6 +70,7 @@ def EC_func():
     print('****************！！！EC端验证碰撞成功！！！*********************') if CH_EC.xy == CH_UE else print('碰撞失败')
     end_auth = time.time()
     print('EC端在服务认证阶段的计算开销：', (end_auth-start_auth) * 1000, 'ms')
+    m_dict['EC_Auth'] = (end_auth-start_auth) * 1000
 
 
     #   提示A3VI开始密钥协商，并将一些密钥协商材料转交给A3VI
@@ -82,7 +82,7 @@ def EC_func():
     print('+++2+++ UE <<<< EC >>>> A3VI  提示双方开始密钥协商过程')
     # print('服务认证阶段消息<ACK,PID_UE,m_UE,A_UE,B_UE>字节数为：', len(UE_EC['PID_UE']) + len(int_to_bytes(m_UE, 5)) + len(A.xy) + len(B.xy))
     print('服务认证阶段消息<ACK,PID_UE,m_UE,A_UE,B_UE>字节数为：', len(UE_EC['PID_UE']) + len(int_to_bytes(m_UE, 32)) + 64 + 64)
-    # print('序列化后的服务认证阶段消息<ACK,PID_UE,m_UE,A_UE,B_UE>字节数为：', len(b_m_EC_A3VI))
+    m_dict['5'] = len(UE_EC['PID_UE']) + len(int_to_bytes(m_UE, 32)) + 64 + 64
     tt = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     tt.sendto(b_m_EC_A3VI, ('127.0.0.1', 12345))
     tt.sendto(b_DokeyAgreement, ('127.0.0.1', 12347))

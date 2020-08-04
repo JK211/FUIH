@@ -3,28 +3,19 @@ from EC import EC_func
 from Ope import Ope_func
 from UE import UE_func
 from A3VI import A3VI_func
-import settings
 import time
 
 
 if __name__ == '__main__':
     print('Parent process start %s.')
-    # last_pro = Process(target=A3VI_func)
-    #
-    # Process(target=EC_func).start()
-    # # Process(target=A3VI_func).start()
-    # last_pro.start()
-    # Process(target=Ope_func).start()
-    # Process(target=UE_func).start()
-    # settings.result_dict['last'] = 'end'
-    # last_pro.join()
-    # print(settings.result_dict)
-
-    Process(target=EC_func).start()
-    Process(target=A3VI_func).start()
-    Process(target=Ope_func).start()
-    Process(target=UE_func).start()
-    time.sleep(10)
-
-    settings.result_dict['last'] = 'end'
-    print(settings.result_dict)
+    functions = [EC_func, A3VI_func, Ope_func, UE_func]
+    manager = Manager()
+    m_dict = manager.dict()
+    processes = []
+    for f in functions:
+        p = Process(target=f,args=(m_dict,))
+        p.start()
+        processes.append(p)
+    for p in processes:
+        p.join()
+    print(m_dict)

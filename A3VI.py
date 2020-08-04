@@ -17,11 +17,8 @@ import time
 from Cyptology import ChameleonHash_ECC,key_type_transform
 from solcrypto.pysolcrypto.aosring import aosring_randkeys, aosring_check, aosring_sign
 from sslcrypto.fallback._util import int_to_bytes, bytes_to_int
-import settings
-# from results_record.global_dict import gol
-# gol = gol()
 
-def A3VI_func():
+def A3VI_func(m_dict):
     curve = sslcrypto.ecc.get_curve('prime256v1')
     KeyTrans = key_type_transform.KeyTrans()   # 注意示例化！！！
     # Ring_Group = Ring_Group()  #  记得实例化
@@ -67,9 +64,7 @@ def A3VI_func():
     ST = (ST_all[1], ST_all[2])
     end_reg = time.time()
     print('A3VI端服务注册阶段计算开销：', (end_reg-start_reg)*1000, 'ms')
-    settings.result_dict['A3VI_Reg']=(end_reg - start_reg) * 1000
-    print('///////////////', settings.result_dict)
-    # gol.set_value('A3VI_Reg', (end_reg-start_reg)*1000)
+    m_dict['A3VI_Reg']=(end_reg - start_reg) * 1000
     data_ST = {'CH_UE': message_AUSF['CH_UE'], 'N': message_AUSF['N'], 'RG_Ope': message_AUSF['RG_Ope'],
                'RG_A3VI': keys, 'ST': ST}
     print('***A3VI***生成票据ST，并把消息（CH_UE, N, T_Exp, RG_OPE, RG_A3VI, ST）上链成功！票据注册成功！')   #  到这一步后我们假装上链成功
@@ -94,6 +89,7 @@ def A3VI_func():
     b_m_A3VI_UE = pickle.dumps(m_A3VI_UE)
     m.sendto(b_m_A3VI_UE, ('127.0.0.1', 12347))
     print('服务注册阶段消息<TXDI_ST, T_Exp>字节数：', len(TXID_ST)+len(int_to_bytes(T_Exp.__int__(), 5)))
+    m_dict['3'] = len(TXID_ST)+len(int_to_bytes(T_Exp.__int__(), 5))
 
 
 
@@ -138,7 +134,9 @@ def A3VI_func():
     # 计算出会话密钥后，把消息【假装通过EC】发送给UE
     print('+++3+++ A3VI >>>> UE 发送消息<A_A3VI, B_A3VI>')
     m_A3VI_UE = {'A_A3VI': A_A3VI.xy, 'B_A3VI': B_A3VI.xy}
-    print('密钥协商阶段消息<A_UE,B_UE>字节数为：', 128)  # 这里我们不再计算，因为我们知道A_A3VI.xy B_A3VI.xy 分别为64个字节
+    bytes_sum = (A_A3VI.x.__int__().bit_length() + A_A3VI.y.__int__().bit_length())/8 + (B_A3VI.x.__int__().bit_length() + B_A3VI.y.__int__().bit_length())/8
+    print('密钥协商阶段消息<A_A3VI,B_A3VI>字节数为：', bytes_sum)  # 这里我们不再计算，因为我们知道A_A3VI.xy B_A3VI.xy 分别为64个字节
+    m_dict['6'] = bytes_sum
     b_A3VI_UE = pickle.dumps(m_A3VI_UE)
     m.sendto(b_A3VI_UE, ('127.0.0.1', 12347))
     m.close()
@@ -157,3 +155,4 @@ def A3VI_func():
         print('++++++++++++++++++++++密钥协商失败！！++++++++++++++++++++++++++++++')
     end_agree2 = time.time()
     print('A3VI端密钥协商阶段计算开销为：', ((end_agree2-start_agree2)+(end_agree1-start_agree1)) * 1000, 'ms')
+    m_dict['A3VI_KA'] = ((end_agree2-start_agree2)+(end_agree1-start_agree1)) * 1000
