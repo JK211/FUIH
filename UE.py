@@ -16,6 +16,9 @@ import time
 from Cyptology import ChameleonHash_ECC,key_type_transform
 from sslcrypto.fallback._util import  bytes_to_int, int_to_bytes
 from Cryptodome.PublicKey import ECC
+from results_record.global_dict import gol
+gol = gol()
+
 
 def UE_func():
     print('-----------------------------------------切片服务注册过程-----------------------------------------------')
@@ -58,6 +61,7 @@ def UE_func():
     # print('序列化后的消息<UText, E1, σ>字节数为：', len(b_m_UE_AMF))
     end_reg = time.time()
     print('UE端服务注册阶段计算开销：', (end_reg-start_reg)*1000, 'ms')
+    gol.set_value('UE_Reg', (end_reg-start_reg)*1000)
     # print(m_UE_AMF)
     # print(b_m_UE_AMF)
     # **********************UDP客户端编程【发送给AMF消息进行注册】***************************************
