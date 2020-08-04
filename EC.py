@@ -15,6 +15,7 @@ import time
 from Cyptology import ChameleonHash_ECC,key_type_transform
 from sslcrypto.fallback._util import int_to_bytes, bytes_to_int
 from results_record import global_dict
+import settings
 
 def EC_func():
     ChameleonHash = ChameleonHash_ECC.ChameleonHash()   # 实例化对象，这一步注意不可少！！！

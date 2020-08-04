@@ -16,9 +16,8 @@ import time
 from Cyptology import key_type_transform
 from solcrypto.pysolcrypto.aosring import aosring_randkeys, aosring_sign
 from sslcrypto.fallback._util import bytes_to_int, int_to_bytes
-from results_record.global_dict import gol
+import settings
 
-gol = gol()
 
 
 def Ope_func():
@@ -112,7 +111,8 @@ def Ope_func():
     b_m_AUSF_A3VI = pickle.dumps(m_AUSF_A3VI)    # 消息序列化为字节串
     end_reg = time.time()
     print('Ope端服务注册阶段计算开销为：', (end_reg-start_reg)*1000, 'ms')
-    gol.set_value('Ope_Reg', (end_reg-start_reg)*1000)
+    settings.result_dict['Ope_Reg'] = (end_reg-start_reg)*1000
+    # gol.set_value('Ope_Reg', (end_reg-start_reg)*1000)
     # **********************UDP客户端编程***************************************
     print('---4---  AUSF  >>>>  A3VI  发送消息<CText, E2, β>')
     print('服务注册阶段消息<CText, E2, β>字节数为：', len(ciphertext)+len(signature))

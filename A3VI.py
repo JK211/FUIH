@@ -17,8 +17,9 @@ import time
 from Cyptology import ChameleonHash_ECC,key_type_transform
 from solcrypto.pysolcrypto.aosring import aosring_randkeys, aosring_check, aosring_sign
 from sslcrypto.fallback._util import int_to_bytes, bytes_to_int
-from results_record.global_dict import gol
-gol = gol()
+import settings
+# from results_record.global_dict import gol
+# gol = gol()
 
 def A3VI_func():
     curve = sslcrypto.ecc.get_curve('prime256v1')
@@ -66,7 +67,8 @@ def A3VI_func():
     ST = (ST_all[1], ST_all[2])
     end_reg = time.time()
     print('A3VI端服务注册阶段计算开销：', (end_reg-start_reg)*1000, 'ms')
-    gol.set_value('A3VI_Reg', (end_reg-start_reg)*1000)
+    settings.result_dict['A3VI_Reg']=(end_reg - start_reg) * 1000
+    # gol.set_value('A3VI_Reg', (end_reg-start_reg)*1000)
     data_ST = {'CH_UE': message_AUSF['CH_UE'], 'N': message_AUSF['N'], 'RG_Ope': message_AUSF['RG_Ope'],
                'RG_A3VI': keys, 'ST': ST}
     print('***A3VI***生成票据ST，并把消息（CH_UE, N, T_Exp, RG_OPE, RG_A3VI, ST）上链成功！票据注册成功！')   #  到这一步后我们假装上链成功
