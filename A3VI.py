@@ -68,6 +68,7 @@ def A3VI_func():
     end_reg = time.time()
     print('A3VI端服务注册阶段计算开销：', (end_reg-start_reg)*1000, 'ms')
     settings.result_dict['A3VI_Reg']=(end_reg - start_reg) * 1000
+    print('///////////////', settings.result_dict)
     # gol.set_value('A3VI_Reg', (end_reg-start_reg)*1000)
     data_ST = {'CH_UE': message_AUSF['CH_UE'], 'N': message_AUSF['N'], 'RG_Ope': message_AUSF['RG_Ope'],
                'RG_A3VI': keys, 'ST': ST}

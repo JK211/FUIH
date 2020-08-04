@@ -62,6 +62,7 @@ def UE_func():
     end_reg = time.time()
     print('UE端服务注册阶段计算开销：', (end_reg-start_reg)*1000, 'ms')
     settings.result_dict['UE_Reg'] = (end_reg-start_reg)*1000
+    print('///////////////', settings.result_dict)
     # print(m_UE_AMF)
     # print(b_m_UE_AMF)
     # **********************UDP客户端编程【发送给AMF消息进行注册】***************************************

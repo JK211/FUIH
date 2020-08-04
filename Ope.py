@@ -112,6 +112,7 @@ def Ope_func():
     end_reg = time.time()
     print('Ope端服务注册阶段计算开销为：', (end_reg-start_reg)*1000, 'ms')
     settings.result_dict['Ope_Reg'] = (end_reg-start_reg)*1000
+    print('///////////////', settings.result_dict)
     # gol.set_value('Ope_Reg', (end_reg-start_reg)*1000)
     # **********************UDP客户端编程***************************************
     print('---4---  AUSF  >>>>  A3VI  发送消息<CText, E2, β>')
