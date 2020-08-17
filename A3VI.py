@@ -31,7 +31,7 @@ def A3VI_func(m_dict):
     signature_AUSF = m_AUSF_A3VI['signature']
     ciphertext_AUSF = m_AUSF_A3VI['ciphertext']
     print("***A3VI***收到的AUSF发送的消息<CText, E2, β>")
-    start_reg = time.time()
+    start_reg = time.clock()
     # *****************************A3VI读取Ope的公钥进行验签***********************************
     public_key_raw = ECC.import_key(open(r'D:\PythonProject\FUIH\ECC_file_keys\Ope_publickey.pem').read())
     x = public_key_raw.pointQ.x.__int__()
@@ -62,19 +62,20 @@ def A3VI_func(m_dict):
     # A3VI开始进行环签名，生成一个成品票据ST
     ST_all = aosring_sign(*keys, message=msg)
     ST = (ST_all[1], ST_all[2])
-    end_reg = time.time()
+    end_reg = time.clock()
     print('A3VI端服务注册阶段计算开销：', (end_reg-start_reg)*1000, 'ms')
     m_dict['A3VI_Reg']=(end_reg - start_reg) * 1000
     data_ST = {'CH_UE': message_AUSF['CH_UE'], 'N': message_AUSF['N'], 'RG_Ope': message_AUSF['RG_Ope'],
                'RG_A3VI': keys, 'ST': ST}
     print('***A3VI***生成票据ST，并把消息（CH_UE, N, T_Exp, RG_OPE, RG_A3VI, ST）上链成功！票据注册成功！')   #  到这一步后我们假装上链成功
 
+
     """
     这里A3VI把消息发布给区块链网络，由矿工对消息data_ST进行验证，利用'RG_Ope': message_AUSF['RG_Ope'], 'RG_A3VI'对票据ST进行验签，验签成功后，打包上链存储，
     生成交易的记录号 TXID_ST = b'8b60004928090023bef4292ed4e0e414a9f1eaa2d734d4b34beb5c6b2f33bb59'
     """
     TXID_ST = b'8b60004928090023bef4292ed4e0e414a9f1eaa2d734d4b34beb5c6b2f33bb59'
-    T_Exp = time.time()
+    T_Exp = time.clock()
 
     """
     关于区块链共识以及上链存储的操作，考虑到我们的工作重点在于协议设计和分析，目前我们暂时不考虑搭建区块链部分的实验
@@ -88,7 +89,8 @@ def A3VI_func(m_dict):
     m_A3VI_UE = {'TXID_ST': TXID_ST, "T_Exp": T_Exp}
     b_m_A3VI_UE = pickle.dumps(m_A3VI_UE)
     m.sendto(b_m_A3VI_UE, ('127.0.0.1', 12347))
-    print('服务注册阶段消息<TXDI_ST, T_Exp>字节数：', len(TXID_ST)+len(int_to_bytes(T_Exp.__int__(), 5)))
+    # print('服务注册阶段消息<TXDI_ST, T_Exp>字节数：', len(TXID_ST)+len(int_to_bytes(T_Exp.__int__(), 5)))
+    print('服务注册阶段消息<TXDI_ST, T_Exp>字节数：', len(TXID_ST)+ T_Exp.__int__().bit_length()/8)
     m_dict['3'] = len(TXID_ST)+len(int_to_bytes(T_Exp.__int__(), 5))
 
 
@@ -103,7 +105,7 @@ def A3VI_func(m_dict):
     agree_data, addr = s.recvfrom(4096)
     m_EC_A3VI = pickle.loads(agree_data)
     print("****A3VI****接收到的密钥协商材料为：", m_EC_A3VI)  # {'PID_UE': UE_EC['PID_UE'], 'm_UE': m_UE, 'A_UE': A_UE, 'B_UE': UE_EC['B_UE']}
-    start_agree1 = time.time()
+    start_agree1 = time.clock()
     x_A = m_EC_A3VI['A_UE'][0]
     y_A = m_EC_A3VI['A_UE'][1]
     A_UE = ECC.EccPoint(x_A, y_A)
@@ -128,7 +130,7 @@ def A3VI_func(m_dict):
     # SK_A3VI = s1.hexdigest()
     b_hash_m = bytes_to_int(pickle.dumps(hash_m))
     SK_A3VI = hash(b_hash_m)
-    end_agree1 = time.time()
+    end_agree1 = time.clock()
     print('***A3VI***计算出的会话密钥[Int类型]为：', SK_A3VI)
 
     # 计算出会话密钥后，把消息【假装通过EC】发送给UE
@@ -145,7 +147,7 @@ def A3VI_func(m_dict):
     ACK_data, addr = s.recvfrom(4096)
     s.close()
     ACK_UE = pickle.loads(ACK_data)
-    start_agree2 = time.time()
+    start_agree2 = time.clock()
     ACK_A3VI = hash(bytes_to_int(pickle.dumps([K_A3VI.xy, SK_A3VI])))
     # print('ACK_UE', ACK_UE)
     # print('ACK_A3VI', ACK_A3VI)
@@ -153,6 +155,6 @@ def A3VI_func(m_dict):
         print('+++++++++++++++A3VI端密钥协商成功！！！++++++++++++++++++++++++++')
     else:
         print('++++++++++++++++++++++密钥协商失败！！++++++++++++++++++++++++++++++')
-    end_agree2 = time.time()
+    end_agree2 = time.clock()
     print('A3VI端密钥协商阶段计算开销为：', ((end_agree2-start_agree2)+(end_agree1-start_agree1)) * 1000, 'ms')
     m_dict['A3VI_KA'] = ((end_agree2-start_agree2)+(end_agree1-start_agree1)) * 1000

@@ -12,7 +12,7 @@ if __name__ == '__main__':
 
     # usr_num = [85, 90, 95, 100] # 1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80,
     # usr_num = [1, 5, 10]
-    usr_num =[5]
+    usr_num =[1]
     for users in usr_num:
         openpyxl_data = []
         title = ('UE_Rge', 'Ope_Rge', 'A3VI_Rge', 'UE_Auth', 'EC_Auth', 'UE_KA', 'A3VI_KA', '1', '2', '3', '4', '5', '6', '7')

@@ -19,7 +19,7 @@ from Cryptodome.PublicKey import ECC
 
 def UE_func(m_dict):
     print('-----------------------------------------切片服务注册过程-----------------------------------------------')
-    start_reg = time.time()
+    start_reg = time.clock()
     #  ***************************开始计算变色龙哈希值*******************************
     ChameleonHash = ChameleonHash_ECC.ChameleonHash()   # 实例化对象，这一步注意不可少！！！
     KeyTrans = key_type_transform.KeyTrans()
@@ -57,7 +57,7 @@ def UE_func(m_dict):
     m_dict['1'] = len(ciphertext)+len(signature)
     b_m_UE_AMF = pickle.dumps(m_UE_AMF)    # 消息序列化为字节串
     # print('序列化后的消息<UText, E1, σ>字节数为：', len(b_m_UE_AMF))
-    end_reg = time.time()
+    end_reg = time.clock()
     print('UE端服务注册阶段计算开销：', (end_reg-start_reg)*1000, 'ms')
     m_dict['UE_Reg'] = (end_reg-start_reg)*1000
     # print(m_UE_AMF)
@@ -81,11 +81,11 @@ def UE_func(m_dict):
     m_A3VI_UE = pickle.loads(data_A3VI_UE)
     # print('007UE收到的注册确认消息TXID_UE：', m_A3VI_UE)
     TXID_ST = m_A3VI_UE['TXID_ST']
-    # end_reg = time.time()
+    # end_reg = time.clock()
     # print('整个切片服务注册阶段计算开销为：', (end_reg-start_reg) * 1000, 'ms')
 
     # **********************UDP客户端编程【发送给EC消息进行认证】***************************************
-    start_auth = time.time()
+    start_auth = time.clock()
     SST = 0b10110001
     w = {'SST': SST, 'ID_A3VI': ID_A3VI}
     b_w = pickle.dumps(w)
@@ -105,7 +105,7 @@ def UE_func(m_dict):
     A_UE = Y.pointQ.__mul__(alpha)  # A_UE = alpha * Y
     B_UE = Y.pointQ.__mul__(beta)   # B_UE = beta * Y
 
-    T_Curr = time.time()
+    T_Curr = time.clock()
     m = {'PID_UE': PID_UE, 'A_UE': A_UE.xy, 'B_UE': B_UE.xy, "T_Curr": T_Curr}
     b_m = pickle.dumps(m)
     h = hashlib.sha3_256()
@@ -119,7 +119,7 @@ def UE_func(m_dict):
 
     r1 = alpha * gamma
     m1 = (k - r1*x + order) % order
-    end_auth = time.time()
+    end_auth = time.clock()
     print('UE端在服务认证阶段的计算开销为：', (end_auth-start_auth) * 1000, 'ms')
     m_dict['UE_Auth'] = (end_auth-start_auth) * 1000
     # # TXID_ST = b'8b60004928090023bef4292ed4e0e414a9f1eaa2d734d4b34beb5c6b2f33bb59'
@@ -129,7 +129,7 @@ def UE_func(m_dict):
     # m_A3VI_UE = pickle.loads(data_A3VI_UE)
     # # print('007UE收到的注册确认消息TXID_UE：', m_A3VI_UE)
     # TXID_ST = m_A3VI_UE['TXID_ST']
-    # end_reg = time.time()
+    # end_reg = time.clock()
     # print('整个切片服务注册阶段计算开销为：', (end_reg-start_reg) * 1000, 'ms')
 
 
@@ -156,7 +156,7 @@ def UE_func(m_dict):
         print('***UE***收到密钥协商提示为True。')
     else:
         print('***UE***收到密钥协商提示为False。')
-    # end_auth =time.time()
+    # end_auth =time.clock()
     # print('整个服务认证阶段计算开销为：', (end_auth - start_auth) * 1000, 'ms')
 
     # print('发送消息成功，消息内容为：', b_m_UE_EC)
@@ -164,7 +164,7 @@ def UE_func(m_dict):
     agree_data, addr = v.recvfrom(4096)
     A3VI_UE = pickle.loads(agree_data)  # {'A_A3VI': A_A3VI, 'B_A3VI': B_A3VI}
     print('***UE***接收到的A3VI的密钥协商材料为：', A3VI_UE)
-    start_agree = time.time()
+    start_agree = time.clock()
     x_A = A3VI_UE['A_A3VI'][0]
     y_A = A3VI_UE['A_A3VI'][1]
     A_A3VI = ECC.EccPoint(x_A, y_A)
@@ -183,7 +183,7 @@ def UE_func(m_dict):
     # print(b_hash_m)
     b_hash_m = bytes_to_int(pickle.dumps(hash_m))
     SK_A3VI = hash(b_hash_m)
-    end_agree = time.time()
+    end_agree = time.clock()
     print('UE端密钥协商阶段计算开销为：', (end_agree-start_agree)*1000, 'ms')
     m_dict['UE_KA'] =  (end_agree-start_agree)*1000
     # SK = hash(b_hash_m)

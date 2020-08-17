@@ -43,7 +43,7 @@ def EC_func(m_dict):
     UE_EC = pickle.loads(data1)
     # print('***EC***收到的UE的认证消息:', UE_EC)
     print('***EC***收到的UE的认证消息')
-    start_auth = time.time()
+    start_auth = time.clock()
     s.close()
     m = {'PID_UE': UE_EC['PID_UE'], 'A_UE': UE_EC['A_UE'], 'B_UE': UE_EC['B_UE'], "T_Curr": UE_EC['T_Curr']}
     b_m = pickle.dumps(m)
@@ -68,7 +68,7 @@ def EC_func(m_dict):
     print('***EC***根据用户发送的TXID_ST上链查询到的哈希值：', CH_UE)
     print('***EC***根据接收到的消息计算出的哈希值：', CH_EC.xy)
     print('****************！！！EC端验证碰撞成功！！！*********************') if CH_EC.xy == CH_UE else print('碰撞失败')
-    end_auth = time.time()
+    end_auth = time.clock()
     print('EC端在服务认证阶段的计算开销：', (end_auth-start_auth) * 1000, 'ms')
     m_dict['EC_Auth'] = (end_auth-start_auth) * 1000
 
@@ -81,8 +81,10 @@ def EC_func(m_dict):
     # **********************UDP客户端编程【发送消息给A3VI，提示其开始密钥协商过程】***************************************
     print('+++2+++ UE <<<< EC >>>> A3VI  提示双方开始密钥协商过程')
     # print('服务认证阶段消息<ACK,PID_UE,m_UE,A_UE,B_UE>字节数为：', len(UE_EC['PID_UE']) + len(int_to_bytes(m_UE, 5)) + len(A.xy) + len(B.xy))
-    print('服务认证阶段消息<ACK,PID_UE,m_UE,A_UE,B_UE>字节数为：', len(UE_EC['PID_UE']) + len(int_to_bytes(m_UE, 32)) + 64 + 64)
-    m_dict['5'] = len(UE_EC['PID_UE']) + len(int_to_bytes(m_UE, 32)) + 64 + 64
+
+    bytes_sum = A.x.__int__().bit_length()/8 + A.y.__int__().bit_length()/8 + B.x.__int__().bit_length()/8 + B.y.__int__().bit_length()/8
+    print('服务认证阶段消息<ACK,PID_UE,m_UE,A_UE,B_UE>字节数为：', len(UE_EC['PID_UE']) + len(int_to_bytes(m_UE, 32)) + bytes_sum)
+    m_dict['5'] = len(UE_EC['PID_UE']) + len(int_to_bytes(m_UE, 32)) + bytes_sum
     tt = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     tt.sendto(b_m_EC_A3VI, ('127.0.0.1', 12345))
     tt.sendto(b_DokeyAgreement, ('127.0.0.1', 12347))

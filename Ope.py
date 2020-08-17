@@ -31,7 +31,7 @@ def Ope_func(m_dict):
     signature_UE = m_UE_AMF['signature']
     ciphertext_UE = m_UE_AMF['ciphertext']
     print("***AMF***收到的UE发送的消息<UText, E, σ>")
-    start_reg = time.time()
+    start_reg = time.clock()
     # *****************************AMF读取用户的公钥进行验签***********************************
     public_key_raw = ECC.import_key(open(r'D:\PythonProject\FUIH\ECC_file_keys\UE_publickey.pem').read())
     x = public_key_raw.pointQ.x.__int__()
@@ -58,6 +58,9 @@ def Ope_func(m_dict):
     print('---3---  SMF  >>  AUSF  发送消息<CH_UE, N, ID_UE, ID_A3VI>')
     print('服务注册阶段消息<CH_UE, N, ID_UE, ID_A3VI>字节数为：', len(message_UE['CH_UE']) + len(int_to_bytes(message_UE['N'], 32))
                                                          + len(message_UE['ID_UE'])+len(message_UE['ID_A3VI']))
+    TXID_ST = b'8b60004928090023bef4292ed4e0e414a9f1eaa2d734d4b34beb5c6b2f33bb59'
+    T_Exp = time.clock()
+    print('AUSF需要备份存储的TXID数据量为：', len(TXID_ST)+len(message_UE['ID_UE'])+len(message_UE['ID_A3VI'])+T_Exp.__int__().bit_length()/8, 'bytes')
     # *************************读取Ope的公私钥，并混进环成员中，这里的公私钥形式为（x,y)  d  *********************************
     # public_key_raw = ECC.import_key(open(r'D:\PythonProject\FUIH\ECC_file_keys\Ope_publickey.pem').read())
     # x = public_key_raw.pointQ.x.__int__()
@@ -71,7 +74,7 @@ def Ope_func(m_dict):
     基于secp256r1的椭圆曲线，所以这里暂时随机生成密钥，用于环签名。
     """
     # *******************************************************************************************
-    n = 10
+    n = 30
     # keys = Ring_Group.generate_RG_with_input_key(n, pk_Ope, sk_Ope)   # 我们这里随机生成一些公私钥，假装找了一些其他的Ope成员形成环
     keys = aosring_randkeys(n)
     CH_N = {'CH_UE': message_UE['CH_UE'], 'N': message_UE['N']}
@@ -86,7 +89,13 @@ def Ope_func(m_dict):
     PST = (PST_all[1], PST_all[2])  # 这里是签名的有效部分tees, cees[-1]  形式为 （（x, y）， z）
     print('***AUSF***生成半成品票据PST')
     # AUSF把半成品票据和用户注册信息打包后，加密并签名发送给A3VI   CH_UE||N||RG||PST
-    message_AUSF = {'CH_UE': message_UE['CH_UE'], 'N': message_UE['N'], 'RG_Ope': keys, 'PST': PST}
+    # message_AUSF = {'CH_UE': message_UE['CH_UE'], 'N': message_UE['N'], 'RG_Ope': keys, 'PST': PST}
+    # 这里测通信开销，我们应该只发送证书序列号就可以了，每个整数序列
+    cert_ID = 0x0546fe1823f7e1941da39fce14c46173
+    cert = []
+    for _ in range(n):
+        cert.append(cert_ID)
+    message_AUSF = {'CH_UE': message_UE['CH_UE'], 'N': message_UE['N'], 'RG_Ope': cert, 'PST': PST}
     b_message_AUSF = pickle.dumps(message_AUSF)
 
     # mmmm_AUSF = [message_UE['CH_UE'], message_UE['N'], keys, PST]
@@ -108,7 +117,7 @@ def Ope_func(m_dict):
     # print("Ope发送的签名为：", signature)
     m_AUSF_A3VI = {'ciphertext': ciphertext, 'signature': signature}   # 这是AUSF需要发送的消息密文和签名
     b_m_AUSF_A3VI = pickle.dumps(m_AUSF_A3VI)    # 消息序列化为字节串
-    end_reg = time.time()
+    end_reg = time.clock()
     print('Ope端服务注册阶段计算开销为：', (end_reg-start_reg)*1000, 'ms')
     m_dict['Ope_Reg'] = (end_reg-start_reg)*1000
     # gol.set_value('Ope_Reg', (end_reg-start_reg)*1000)

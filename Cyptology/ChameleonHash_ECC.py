@@ -10,7 +10,7 @@ import random
 给定一个新的r1, 可计算m1 = k - r1*x 使得 CH1 = m1*P + r1*Y = CH 成立
 
 作者： Jerry 
-单位： XiDian University
+单位： 
 时间： 2020/07/28
 """
 
