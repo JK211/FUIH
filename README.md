@@ -1,7 +1,7 @@
 # FUIS Protocol Simulation
 
 In this git, we implement a simulation to achieve our designed protocol FUIS, which is a Fast and Universal Inter-Slice Handover Authentication protocol. The detail message about 
-the protocol can be viewed in our paper.
+the protocol can be viewed in our paper. https://www.hindawi.com/journals/scn/2021/6694058/
 
 In this git, we basically make an intergrated protocol with chameleon hash funciton and ring signature under ECC. Besides, we still uses ECDSA signature and other hash function like sha256. We also provide some simulation results in this git for futher reference to any researchers who interested in our work.
 
